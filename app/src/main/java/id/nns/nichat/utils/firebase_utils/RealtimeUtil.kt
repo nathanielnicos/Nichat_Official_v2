@@ -67,17 +67,17 @@ object RealtimeUtil {
             }
     }
 
-//    fun deleteChannel(channelId: String, soWhat: (String?) -> Unit) {
-//        val reference = realtimeInstance
-//            .getReference("/all_channels/$channelId")
-//
-//        reference.removeValue()
-//            .addOnSuccessListener {
-//                soWhat(null)
-//            }
-//            .addOnFailureListener {
-//                soWhat(it.message)
-//            }
-//    }
+    fun deleteChannel(channelId: String, soWhat: (String?) -> Unit) {
+        val reference = realtimeInstance
+            .getReference("/all_channels/$channelId")
+
+        reference.removeValue()
+            .addOnSuccessListener {
+                soWhat(null)
+            }
+            .addOnFailureListener {
+                soWhat(it.message)
+            }
+    }
 
 }

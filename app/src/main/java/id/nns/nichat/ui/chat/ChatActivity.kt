@@ -152,7 +152,15 @@ class ChatActivity : AppCompatActivity() {
                     binding.rvChat.scrollToPosition(0)
                 }
                 R.id.menu_clear_chat -> {
-                    chatViewModel.clearChat(channelId)
+                    if (channel?.firstUserUid == preference.getUser().uid) {
+                        chatViewModel.clearChat(channelId)
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Admin only!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
             true

@@ -120,7 +120,13 @@ class ChatViewModel(private val localRepository: ILocalRepository) : ViewModel()
         viewModelScope.launch(Dispatchers.IO) {
             localRepository.deleteAllMessagesByChannelId(channelId)
             withContext(Dispatchers.Main) {
-                _isClear.value = true
+                RealtimeUtil.deleteChannel(channelId) {
+                    if (it == null) {
+                        _isClear.value = true
+                    } else {
+                        _error.value = it
+                    }
+                }
             }
         }
     }
