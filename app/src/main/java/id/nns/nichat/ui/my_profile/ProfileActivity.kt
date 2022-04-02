@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,19 +15,19 @@ import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
 import com.firebase.ui.auth.AuthUI
 import id.nns.nichat.R
 import id.nns.nichat.databinding.ActivityProfileBinding
 import id.nns.nichat.preference.UserPreference
 import id.nns.nichat.data.response.UserResponse
 import id.nns.nichat.ui.splash.SplashActivity
-import id.nns.nichat.utils.CropActivityResultContract
 import id.nns.nichat.utils.extensions.removeStatusBar
 import id.nns.nichat.utils.converters.uriToByteArray
 import java.text.SimpleDateFormat
@@ -45,8 +44,7 @@ class ProfileActivity : AppCompatActivity() {
     private var imgUrl: String? = null
     private var pictureJustChanged = false
 
-    private lateinit var cropActivityResultContract: ActivityResultContract<Any?, Uri?>
-    private lateinit var cropActivityResultLauncher: ActivityResultLauncher<Any?>
+    private lateinit var cropActivityResultLauncher: ActivityResultLauncher<CropImageContractOptions>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,17 +55,18 @@ class ProfileActivity : AppCompatActivity() {
         setView()
         setEditTextListener()
 
-        cropActivityResultContract = CropActivityResultContract(this, 1, 1)
-        cropActivityResultLauncher = registerForActivityResult(cropActivityResultContract) { uri ->
-            if (uri != null) {
-                selectedImageBytes = uriToByteArray(
-                    baseContext = baseContext,
-                    uri = uri
-                )
+        cropActivityResultLauncher = registerForActivityResult(CropImageContract()) { result ->
+            if (result.isSuccessful) {
+                selectedImageBytes = result.uriContent?.let { uri ->
+                    uriToByteArray(
+                        baseContext = baseContext,
+                        uri = uri
+                    )
+                }
 
                 // Change to new image
                 Glide.with(this)
-                    .load(uri)
+                    .load(result.uriContent)
                     .into(binding.civProfile)
 
                 pictureJustChanged = true
